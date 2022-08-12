@@ -19,6 +19,43 @@ const refs = {
   box: document.querySelector('.country-info'),
 };
 
+function countriesMoreThenTen() {
+  return Notify.info(
+    'Too many matches found. Please enter a more specific name.'
+  );
+}
+function listOfCountries(data) {
+  return data.reduce((acc, el) => {
+    return (acc += `
+    <li class='list-item'>
+      <img class="country-flag" src="${el.flags.svg}" alt="${el.name.official}" width="25">
+      <span class="country-name">${el.name.official}</span>
+    </li>`);
+  }, '');
+}
+function countryCard(data) {
+  const [
+    {
+      name: { official: name },
+      capital,
+      population,
+      flags: { svg },
+      languages,
+    },
+  ] = data;
+
+  return `
+      <div class="name-container">
+        <img class="country-flag" src="${svg}" alt="${name}" width="9%"/>
+        <h2>${name}</h2>
+      </div>
+      <ul class="info-list">
+        <li>Capital: <span>${capital}</span></li>
+        <li>Population: <span>${population}</span></li>
+        <li>languages: <span>${Object.values(languages).join(', ')}</span></li>
+      </ul>`;
+}
+
 refs.input.addEventListener(
   'input',
   debounce(e => {
@@ -28,47 +65,17 @@ refs.input.addEventListener(
     }
     fetchCountry(e.target.value.trim())
       .then(data => {
-        if (data.length >= 10) {
-          return Notify.info(
-            'Too many matches found. Please enter a more specific name.'
-          );
+        console.log(data.length);
+        if (data.length >= 10 && data.length != 40) {
+          countriesMoreThenTen();
         } else if (data.length >= 2) {
-          const country = data.reduce((acc, el) => {
-            return (acc += `
-              <li class='list-item'>
-                <img class="country-flag" src="${el.flags.svg}" alt="${el.name.official}" width="25">
-                <span class="country-name">${el.name.official}</span>
-              </li>`);
-          }, '');
-          refs.list.innerHTML += country;
+          refs.list.innerHTML += listOfCountries(data);
         } else if (data.length === 1) {
-          const [
-            {
-              name: { official: name },
-              capital,
-              population,
-              flags: { svg },
-              languages,
-            },
-          ] = data;
-          console.log(languages);
-          refs.list.innerHTML = `
-           <div class="name-container">
-              <img class="country-flag" src="${svg}" alt="${name}" width="9%"/>
-              <h2>${name}</h2>
-           </div>
-            <ul class="info-list">
-              <li>Capital: <span>${capital}</span></li>
-              <li>Population: <span>${population}</span></li>
-              <li>languages: <span>${Object.values(languages).join(
-                ', '
-              )}</span></li>
-            </ul>
-          `;
+          refs.list.innerHTML = countryCard(data);
         }
       })
       .catch(error => {
-        console.log(error);
+        Notify.failure(error);
       });
   }, DEBOUNCE_DELAY)
 );
