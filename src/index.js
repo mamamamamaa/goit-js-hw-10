@@ -65,7 +65,6 @@ refs.input.addEventListener(
     }
     fetchCountry(e.target.value.trim())
       .then(data => {
-        console.log(data.length);
         if (data.length >= 10 && data.length != 40) {
           countriesMoreThenTen();
         } else if (data.length >= 2) {

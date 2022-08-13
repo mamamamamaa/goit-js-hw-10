@@ -12,5 +12,4 @@ export default function fetchCountries(name) {
       }
       return response.json();
     })
-    .catch(() => errorMessage);
 }
